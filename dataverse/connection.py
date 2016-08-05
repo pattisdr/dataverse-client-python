@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import json
 from lxml import etree
 import requests
 
@@ -96,3 +97,15 @@ class Connection(object):
     def get_dataverse(self, alias, refresh=False):
         return next((dataverse for dataverse in self.get_dataverses(refresh)
                      if dataverse.alias == alias), None)
+
+    def get_custom_publish_text(self):
+        resp = requests.get(
+            '{0}/info/settings/:DatasetPublishPopupCustomText'.format(self.native_base_url),
+            params={'key': self.token}
+        )
+        if resp.status_code != 200:
+            raise exceptions.OperationFailedError(
+                'Custom publish text could not be found.'
+            )
+
+        return json.loads(resp.content)['data']['message']
